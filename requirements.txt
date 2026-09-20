@@ -1,0 +1,7 @@
+scapy
+streamlit
+pandas
+supabase
+python-dotenv
+requests
+fpdf2

@@ -1,0 +1,22 @@
+FROM python:3.11-slim
+
+# Install system network sniffing dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpcap-dev \
+    gcc \
+    iptables \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application source code
+COPY core/ ./core/
+COPY database/ ./database/
+COPY main.py .
+
+# Run the sniffer engine
+CMD ["python", "main.py"]
