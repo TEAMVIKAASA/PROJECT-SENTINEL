@@ -33,6 +33,44 @@
                                                                  Streamlit SOC UI
                                                                  (GeoIP Map & Analytics)
 
+## Publish the Dashboard Online
+
+The Streamlit dashboard can be deployed from GitHub with [Streamlit Community Cloud](https://streamlit.io/cloud). The packet sniffer and firewall controller cannot run on Vercel, GitHub Pages, or a normal serverless host because they require raw network access and host firewall privileges.
+
+### Recommended deployment
+
+1. Push this repository to GitHub.
+2. Open Streamlit Community Cloud and choose **Create app**.
+3. Select the repository and branch, then set the main file to `dashboard/app.py`.
+4. In the app settings, add these secrets:
+
+    ```toml
+    SUPABASE_URL = "https://your-project.supabase.co"
+    SUPABASE_KEY = "your-supabase-anon-key"
+    ```
+
+5. Deploy the app. Streamlit will provide a public URL that can be shared.
+
+Keep the Supabase service-role key out of the dashboard secrets. The dashboard only needs a key that is safe for client-side data access under the database's Row Level Security policies.
+
+### Run the sensor separately
+
+Run the backend on a Linux host, home server, or VM that can see the traffic being monitored:
+
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+The backend writes alerts to Supabase; the hosted Streamlit dashboard reads those alerts. A cloud dashboard by itself will show `Perimeter quiet` until a sensor or test data writes rows to the `alerts` table.
+
+### Platform limitations
+
+- **GitHub Pages:** static files only; it cannot run this Python/Streamlit app.
+- **Vercel:** suitable for serverless web apps, but not for Scapy raw packet capture or `iptables`/`netsh` firewall actions.
+- **Streamlit Community Cloud:** suitable for the dashboard only.
+- **Docker on a VM or dedicated host:** suitable for the sensor and dashboard together.
+
 ## Contributors
 
 - [Sarvottam Kumar Jha](https://github.com/SarvottamKumarJha)
