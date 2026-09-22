@@ -17,11 +17,21 @@ st.set_page_config(
 )
 
 load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-TARGET_LAT = os.getenv("SENTINEL_TARGET_LAT")
-TARGET_LON = os.getenv("SENTINEL_TARGET_LON")
-TARGET_NAME = os.getenv("SENTINEL_TARGET_NAME", "Protected Sentinel sensor")
+
+def setting(name, default=None):
+    value = os.getenv(name)
+    if value:
+        return value
+    try:
+        return st.secrets.get(name, default)
+    except (FileNotFoundError, KeyError, AttributeError):
+        return default
+
+SUPABASE_URL = setting("SUPABASE_URL")
+SUPABASE_KEY = setting("SUPABASE_KEY")
+TARGET_LAT = setting("SENTINEL_TARGET_LAT")
+TARGET_LON = setting("SENTINEL_TARGET_LON")
+TARGET_NAME = setting("SENTINEL_TARGET_NAME", "Protected Sentinel sensor")
 TARGET_CONFIGURED = TARGET_LAT is not None and TARGET_LON is not None
 
 st.markdown("""
