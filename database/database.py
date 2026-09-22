@@ -14,7 +14,7 @@ if SUPABASE_URL and SUPABASE_KEY and "your-project" not in SUPABASE_URL:
     except Exception as e:
         print(f"[-] Supabase connection error: {e}")
 
-def log_alert(source_ip: str, attack_type: str, ports_hit: int, severity: str = "Critical", geo_data: dict = None):
+def log_alert(source_ip: str, attack_type: str, ports_hit: int, severity: str = "Critical", geo_data: dict = None, destination_ip: str = ""):
     """Inserts a detected intrusion alert along with GeoIP data into Supabase."""
     if not supabase:
         print(f"[!] Alert detected (Supabase offline): {source_ip} rattled {ports_hit} ports.")
@@ -30,7 +30,8 @@ def log_alert(source_ip: str, attack_type: str, ports_hit: int, severity: str = 
         "country": geo.get("country", "Unknown"),
         "city": geo.get("city", "Unknown"),
         "latitude": geo.get("latitude"),
-        "longitude": geo.get("longitude")
+        "longitude": geo.get("longitude"),
+        "destination_ip": destination_ip
     }
     try:
         response = supabase.table("alerts").insert(payload).execute()

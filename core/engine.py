@@ -19,7 +19,7 @@ class ThreatEngine:
         self.flagged_scanners = set()
         self.flagged_flooders = set()
 
-    def process_packet(self, src_ip: str, dst_port: int, flags: str = ""):
+    def process_packet(self, src_ip: str, dst_port: int, flags: str = "", dst_ip: str = ""):
         now = time.time()
 
         # --- Rule 1: Port Scan Reconnaissance ---
@@ -43,7 +43,8 @@ class ThreatEngine:
                     attack_type="Port Scan Reconnaissance",
                     ports_hit=len(unique_ports),
                     severity="Critical",
-                    geo_data=geo
+                    geo_data=geo,
+                    destination_ip=dst_ip
                 )
 
                 # 3. Block IP at Firewall
@@ -82,7 +83,8 @@ class ThreatEngine:
                         attack_type="TCP SYN Flood DoS",
                         ports_hit=len(self.ip_syn_activity[src_ip]),
                         severity="Critical",
-                        geo_data=geo
+                        geo_data=geo,
+                        destination_ip=dst_ip
                     )
 
                     block_ip(src_ip)

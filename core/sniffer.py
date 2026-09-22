@@ -10,9 +10,10 @@ def handle_packet(packet):
 
     if IP in packet and (TCP in packet or UDP in packet):
         src_ip = packet[IP].src
+        dst_ip = packet[IP].dst
         dst_port = packet[TCP].dport if TCP in packet else packet[UDP].dport
         flags = str(packet[TCP].flags) if TCP in packet else ""
-        engine.process_packet(src_ip, dst_port, flags)
+        engine.process_packet(src_ip, dst_port, flags, dst_ip)
 
 def start_sniffing():
     print("[*] Project Sentinel: Boundary Sniffer Active.")

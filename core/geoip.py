@@ -1,35 +1,29 @@
 import requests
-import random
+import ipaddress
 
 # Cache to prevent making duplicate API calls for the same IP
 GEO_CACHE = {}
 
-# Fallback coordinates for private/local IP simulations so testing looks real on the map
-SIMULATED_GLOBAL_LOCATIONS = [
-    {"country": "Germany", "city": "Frankfurt", "lat": 50.1109, "lon": 8.6821},
-    {"country": "United States", "city": "Ashburn", "lat": 39.0438, "lon": -77.4874},
-    {"country": "Singapore", "city": "Singapore", "lat": 1.3521, "lon": 103.8198},
-    {"country": "Netherlands", "city": "Amsterdam", "lat": 52.3676, "lon": 4.9041},
-    {"country": "India", "city": "Mumbai", "lat": 19.0760, "lon": 72.8777},
-    {"country": "Japan", "city": "Tokyo", "lat": 35.6762, "lon": 139.6503}
-]
-
 def get_ip_location(ip: str) -> dict:
     """
     Resolves an IP to geographical coordinates (lat, lon, country, city).
-    Uses ip-api.com for public IPs; uses mock geolocations for local/private test IPs.
+    Uses ip-api.com for public IPs. Private/local addresses have no public
+    geographic location and are returned without invented coordinates.
     """
     if ip in GEO_CACHE:
         return GEO_CACHE[ip]
 
-    # Handle local / private networks (RFC 1918)
-    if ip in ("127.0.0.1", "localhost", "::1") or ip.startswith(("192.168.", "10.", "172.16.")):
-        simulated = random.choice(SIMULATED_GLOBAL_LOCATIONS)
+    try:
+        is_private = ipaddress.ip_address(ip).is_private
+    except ValueError:
+        is_private = True
+
+    if is_private:
         result = {
-            "country": simulated["country"],
-            "city": simulated["city"],
-            "latitude": simulated["lat"],
-            "longitude": simulated["lon"]
+            "country": "Private network",
+            "city": "Local source",
+            "latitude": None,
+            "longitude": None,
         }
         GEO_CACHE[ip] = result
         return result
